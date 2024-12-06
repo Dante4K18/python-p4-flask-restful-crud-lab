@@ -19,10 +19,13 @@ api = Api(app)
 
 class Plants(Resource):
 
-    def get(self):
-        plants = [plant.to_dict() for plant in Plant.query.all()]
-        return make_response(jsonify(plants), 200)
+    def get(self, id):
+        plant = Plant.query.get(id)
+        if not plant:
+            return {'error': 'Plant not found'}, 404
 
+        return plant.to_dict(), 200
+    
     def post(self):
         data = request.get_json()
 
@@ -36,6 +39,18 @@ class Plants(Resource):
         db.session.commit()
 
         return make_response(new_plant.to_dict(), 201)
+
+def patch(self, id):
+        plant = Plant.query.get(id)
+        if not plant:
+            return {'error': 'Plant not found'}, 404
+
+        data = request.get_json()
+        if 'is_in_stock' in data:
+            plant.is_in_stock = data['is_in_stock']
+
+        db.session.commit()
+        return jsonify(plant.to_dict())
 
 
 api.add_resource(Plants, '/plants')
